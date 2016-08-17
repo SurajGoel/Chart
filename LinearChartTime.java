@@ -101,9 +101,9 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
         xAxis.setTextColor(Color.rgb(255, 192, 56));
         xAxis.setCenterAxisLabels(true);
        // xAxis.setGranularity(60000L); // one minute in millis
-       /* xAxis.setValueFormatter(new IAxisValueFormatter() {
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
 
-            private SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM HH:mm");
+            private SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss");
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -114,7 +114,7 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
             public int getDecimalDigits() {
                 return 0;
             }
-        });*/
+        });
 
         YAxis leftAxis = mChart.getAxisLeft();
         leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
