@@ -2,6 +2,8 @@
 package com.xxmassdeveloper.mpchartexample;
 
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.components.YAxis.AxisDependency;
@@ -25,6 +28,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.xxmassdeveloper.mpchartexample.custom.MyMarkerView;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
 import org.json.JSONObject;
@@ -64,8 +68,103 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
 
         mChart = (LineChart) findViewById(R.id.chart1);
 
+        // NEW CODE ///////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////
+
+       // mChart.setOnChartValueSelectedListener(this);
+        mChart.setDrawGridBackground(false);
+
         // no description text
         mChart.setDescription("");
+        mChart.setNoDataTextDescription("You need to provide data for the chart.");
+
+        // enable touch gestures
+        mChart.setTouchEnabled(true);
+
+        // enable scaling and dragging
+        mChart.setDragEnabled(true);
+        mChart.setScaleEnabled(true);
+        // mChart.setScaleXEnabled(true);
+        // mChart.setScaleYEnabled(true);
+
+        // if disabled, scaling can be done on x- and y-axis separately
+        mChart.setPinchZoom(true);
+
+        // set an alternative background color
+        // mChart.setBackgroundColor(Color.GRAY);
+
+        // create a custom MarkerView (extend MarkerView) and specify the layout
+        // to use for it
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+        mv.setChartView(mChart); // For bounds control
+        mChart.setMarker(mv); // Set the marker to the chart
+
+        // x-axis limit line
+        LimitLine llXAxis = new LimitLine(10f, "Index 10");
+        llXAxis.setLineWidth(4f);
+        llXAxis.enableDashedLine(10f, 10f, 0f);
+        llXAxis.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+        llXAxis.setTextSize(10f);
+
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.enableGridDashedLine(10f, 10f, 0f);
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+
+            private SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss");
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return mFormat.format(new Date((long) value));
+            }
+
+            @Override
+            public int getDecimalDigits() {
+                return 0;
+            }
+        });
+        //xAxis.setValueFormatter(new MyCustomXAxisValueFormatter());
+        //xAxis.addLimitLine(llXAxis); // add x-axis limit line
+
+
+        Typeface tf = Typeface.createFromAsset(getAssets(), "OpenSans-Regular.ttf");
+
+        LimitLine ll1 = new LimitLine(150f, "Upper Limit");
+        ll1.setLineWidth(4f);
+        ll1.enableDashedLine(10f, 10f, 0f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll1.setTextSize(10f);
+        ll1.setTypeface(tf);
+
+        LimitLine ll2 = new LimitLine(-30f, "Lower Limit");
+        ll2.setLineWidth(4f);
+        ll2.enableDashedLine(10f, 10f, 0f);
+        ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+        ll2.setTextSize(10f);
+        ll2.setTypeface(tf);
+
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+        //leftAxis.addLimitLine(ll1);
+        leftAxis.addLimitLine(ll2);
+        leftAxis.setAxisMaximum(400f);
+        leftAxis.setAxisMinimum(0f);
+        //leftAxis.setYOffset(20f);
+        leftAxis.enableGridDashedLine(10f, 10f, 0f);
+        leftAxis.setDrawZeroLine(false);
+
+        // limit lines are drawn behind data (and not on top)
+        leftAxis.setDrawLimitLinesBehindData(true);
+
+        mChart.getAxisRight().setEnabled(false);
+        setData();
+
+        // NEW CODE//////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////
+
+        // no description text
+      /*  mChart.setDescription("");
         mChart.setNoDataTextDescription("You need to provide data for the chart.");
 
         // enable touch gestures
@@ -100,8 +199,8 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
         xAxis.setDrawGridLines(true);
         xAxis.setTextColor(Color.rgb(255, 192, 56));
         xAxis.setCenterAxisLabels(true);
-       // xAxis.setGranularity(60000L); // one minute in millis
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
+        // xAxis.setGranularity(60000L); // one minute in millis
+       /* xAxis.setValueFormatter(new IAxisValueFormatter() {
 
             private SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -122,18 +221,18 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
         leftAxis.setTextColor(ColorTemplate.getHoloBlue());
         leftAxis.setDrawGridLines(true);
         leftAxis.setGranularityEnabled(true);
-       // leftAxis.setAxisMinimum(100f);
-      //  leftAxis.setAxisMaximum(350f);
+        // leftAxis.setAxisMinimum(100f);
+        //  leftAxis.setAxisMaximum(350f);
         leftAxis.setYOffset(9f);
         leftAxis.setTextColor(Color.rgb(255, 192, 56));
 
         YAxis rightAxis = mChart.getAxisRight();
-        rightAxis.setEnabled(false);
+        rightAxis.setEnabled(false);*/
     }
 
     private void setData() {
         new getChartData().execute();
-       // new plottingData().execute();
+        // new plottingData().execute();
     }
 
     private class getChartData extends AsyncTask<Void, Void, String[]> {
@@ -151,26 +250,31 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
         protected void onPostExecute(String[] s) {
             Log.d("printing", "Doing + " + s);
             int len = s.length;
+            float x,y;
             ArrayList<Entry> values1 = new ArrayList<Entry>();
             for(int i=1 ; i<len ; i+=2) {
-                float x = Float.valueOf(s[i]);
-                float y = Float.valueOf(s[i+1]);
+                x=0; y=0;
+                char[] time_x = s[i].toCharArray();
+                for(int j=5 ; j<time_x.length ; j++) {
+                    x+= (Math.pow(10,time_x.length-j-1)*(Character.getNumericValue(time_x[j])));
+                }
+                y = Float.valueOf(s[i+1]);
                 Log.d("valuesareforreal", Float.toString(x) + "  " + Float.toString(y));
-                if(prev != x) values1.add(new Entry(x, y)); // This is a little weird
+                values1.add(new Entry(x, y)); // This is a little weird
                 // If not keep that if condition then the graph is very weird. Check For Yourself.
-                prev = x;
+                //prev = x;
             }
             ArrayList<Entry> test = new ArrayList<Entry>();
-            float[] ar = {1,3,4,8,12,28};
+          /*  float[] ar = {1,3,4,8,12,28};
             for(int i=0 ; i<ar.length ; i++) {
                 float y;
                 if((i%2==1)) y = 10;
                 else y=5;
                 test.add(new Entry(ar[i],y));
-            }
+            }*/
             // create a dataset and give it a type
             LineDataSet set1 = new LineDataSet(values1, "DataSet 1");
-            set1.setAxisDependency(AxisDependency.LEFT);
+            /*set1.setAxisDependency(AxisDependency.LEFT);
             set1.setColor(ColorTemplate.getHoloBlue());
             set1.setValueTextColor(ColorTemplate.getHoloBlue());
             set1.setLineWidth(1.5f);
@@ -179,7 +283,22 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
             set1.setFillAlpha(65);
             set1.setFillColor(ColorTemplate.getHoloBlue());
             set1.setHighLightColor(Color.rgb(244, 117, 117));
+            set1.setDrawCircleHole(false);*/
+
+
+            // set the line to be drawn like this "- - - - - -"
+            set1.enableDashedLine(10f, 5f, 0f);
+            set1.enableDashedHighlightLine(10f, 5f, 0f);
+            set1.setColor(Color.BLACK);
+            set1.setCircleColor(Color.BLACK);
+            set1.setLineWidth(1f);
+            set1.setCircleRadius(3f);
             set1.setDrawCircleHole(false);
+            set1.setValueTextSize(9f);
+            set1.setDrawFilled(true);
+            set1.setFormLineWidth(1f);
+            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
+            set1.setFormSize(15.f);
 
             // create a data object with the datasets
             LineData data = new LineData(set1);
@@ -189,7 +308,7 @@ public class LineChartTime extends DemoBase implements OnSeekBarChangeListener {
             // set data
             mChart.setData(data);
             mChart.invalidate();
-           // super.onPostExecute(s);
+            // super.onPostExecute(s);
         }
 
         protected String[] getData() {
